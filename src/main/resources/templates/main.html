@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Web audio player</title>
+    <link rel="stylesheet" href="/materialize/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        body {
+            font-family: monospace;
+        }
+
+        #player {
+            width: 100%;
+        }
+
+        .frame {
+            display: flex;
+            flex-direction: column;
+            height: 71vh;
+            margin: 0 10px;
+        }
+        .scroll {
+            flex: 0 1 100%;
+            border: none;
+            overflow-y: auto;
+            overflow-style: marquee-line;
+        }
+    </style>
+</head>
+<body>
+<div class="container" id="app">
+    <div class="row" v-if="loading">
+        Загрузка...
+    </div>
+    <div class="row" v-show="!loading" style="display: none; /*position: fixed; width: inherit;*/">
+        <div class="col s12">
+            <h5 v-if="showTitle && trackName">{{ trackName }}</h5>
+            <h5 v-else>&nbsp;</h5>
+        </div>
+        <div class="col s8">
+            <audio autoplay controls :src="trackUrl" @ended="isRepeat ? next() : () => {}" id="player"></audio>
+        </div>
+        <div class="col s4" style="padding: 11px 0;">
+<!--            <button @click.prevent="prev" class="btn-flat waves-effect waves-teal" title="Предыдущий трек">-->
+<!--                <i class="material-icons">skip_prev</i>-->
+<!--            </button>-->
+            <button @click.prevent="next" class="btn-flat waves-effect waves-teal" title="Следующий трек">
+                <i class="material-icons">skip_next</i>
+            </button>
+            <button @click.prevent="isRepeat = !isRepeat" :class="{'teal white-text': isRepeat}" class="btn-flat" title="Режим повтора">
+                <i class="material-icons">repeat</i>
+            </button>
+            <button @click.prevent="fade" :disabled="isFade" class="btn-flat" title="Плавное отключение звука">
+                <i class="material-icons">volume_off</i>
+            </button>
+            <button @click.prevent="dnd" class="btn-flat" title="Не беспокоить">
+                <i class="material-icons">{{ !showTitle && !showPlaylist ? 'do_not_disturb_off' : 'do_not_disturb_on' }}</i>
+            </button>
+            <button @click.prevent="showSettings = !showSettings" :class="{'teal white-text': showSettings}" class="btn-flat" title="Настройки">
+                <i class="material-icons">settings</i>
+            </button>
+        </div>
+    </div>
+    <div class="row" v-show="!loading" style="display: none;">
+        <div class="col s9">
+            <template v-if="showPlaylist">
+                <p>Всего: {{ tracksTotal }}</p>
+                <div class="input-field">
+                    <input type="text" placeholder="поиск" v-model="search" id="search"/>
+                    <label for="search"></label>
+                </div>
+                <div class="frame">
+                <ul v-if="tracks.length" class="scroll">
+                    <li v-for="track in tracks">
+                        <a href="#" @click.prevent="play(track.id)" :title="track.name">
+                            <template v-if="track.id === trackId">
+                                <i class="material-icons tiny">play_arrow</i>&nbsp;
+                            </template>
+                            {{ track.name }}
+                        </a>
+                    </li>
+                </ul>
+                </div>
+            </template>
+        </div>
+        <div class="col s3" v-show="showSettings">
+            <div class="row">
+                <div class="col s12">
+                    <p>
+                        <label>
+                            <input type="checkbox" v-model="showTitle"/>
+                            <span>Показать название</span>
+                        </label>
+                    </p>
+                </div>
+                <div class="col s12">
+                    <p>
+                        <label>
+                            <input type="checkbox" v-model="showPlaylist"/>
+                            <span>Показать плейлист</span>
+                        </label>
+                    </p>
+                </div>
+                <div class="col s12">
+                    <div class="input-field">
+                        <input type="number" min="200" max="1500" step="100" v-model="muteInterval" id="muteInterval"/>
+                        <label for="muteInterval">Скорость выключения звука</label>
+                        <span class="helper-text">мс</span>
+                    </div>
+                </div>
+                <div class="col s12">
+                    <p>
+                        <a th:href="@{/controls}" target="_blank">Управление</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/axios/axios.min.js"></script>
+<script src="/vue/vue.js"></script>
+<script src="/materialize/js/materialize.min.js"></script>
+<script type="text/javascript" src="/player.js"></script>
+</body>
+</html>

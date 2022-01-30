@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Web audio player</title>
+    <link rel="stylesheet" href="/materialize/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        body {
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+<div class="container" id="app">
+    <div class="row" v-if="loading">
+        Загрузка...
+    </div>
+    <div class="row" v-show="!loading" style="display: none;">
+        <div class="col s3">
+            <p>
+                <label>
+                    <input type="checkbox" v-model="showTitle"/>
+                    <span>Показать название</span>
+                </label>
+            </p>
+            <p>
+                <label>
+                    <input type="checkbox" v-model="showPlaylist"/>
+                    <span>Показать плейлист</span>
+                </label>
+            </p>
+            <p>
+                <label>
+                    <input type="checkbox" v-model="isRepeat"/>
+                    <span>Повтор</span>
+                </label>
+            </p>
+            <div class="input-field" style="margin-top: 15px;">
+                <input type="number" min="200" max="1500" step="100" v-model="muteInterval" id="muteInterval"/>
+                <label for="muteInterval">Скорость выключения звука</label>
+                <span class="helper-text">мс</span>
+            </div>
+            <p>Показать настройки: {{ showSettings }}</p>
+            <p>Всего треков: {{ tracksTotal }}</p>
+            <div>
+                <button @click.prevent="next">next</button>
+            </div>
+            <p>mute</p>
+            <p>dnd</p>
+        </div>
+        <div class="col s9">
+            <div class="input-field">
+                <input type="text" placeholder="поиск" v-model="search" id="search"/>
+                <label for="search"></label>
+            </div>
+            <ul v-if="tracks.length">
+                <li v-for="track in tracks">
+                    <a href="#" @click.prevent="play(track.id)" :title="track.name">
+                        <template v-if="track.id === trackId">
+                            <i class="material-icons tiny">play_arrow</i>&nbsp;
+                        </template>
+                        {{ track.name }}
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<script src="/axios/axios.min.js"></script>
+<script src="/vue/vue.js"></script>
+<script src="/materialize/js/materialize.min.js"></script>
+<script type="text/javascript" src="/controls.js"></script>
+</body>
+</html>
