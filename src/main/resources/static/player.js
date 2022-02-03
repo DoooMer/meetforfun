@@ -37,6 +37,18 @@ function fade(period, step, callback) {
     }, period);
 }
 
+function playpause() {
+    const player = document.getElementById('player');
+    return player.paused ? player.play() : player.pause();
+}
+
+function volumeChange(volume) {
+    const player = document.getElementById('player');
+    player.volume = volume;
+}
+
+const signals = new Signals();
+const settings = new Settings();
 const app = new Vue({
     el: '#app',
     // store,
@@ -74,14 +86,14 @@ const app = new Vue({
     },
     created() {
         // load saved state
-        this.showTitle = JSON.parse(localStorage.getItem('jwp_showTitle') || 'true');
-        this.showPlaylist = JSON.parse(localStorage.getItem('jwp_showPlaylist') || 'false');
-        this.showSettings = JSON.parse(localStorage.getItem('jwp_showSettings') || 'false');
-        this.isRepeat = JSON.parse(localStorage.getItem('jwp_repeat') || 'true');
-        this.muteInterval = JSON.parse(localStorage.getItem('jwp_muteInterval') || '300');
+        this.showTitle = settings.getShowTitle();
+        this.showPlaylist = settings.getShowPlaylist();
+        this.showSettings = settings.getShowSettings();
+        this.isRepeat = settings.getRepeat();
+        this.muteInterval = settings.getMuteInterval();
 
         // get link to current track on load app
-        axios.get('/api/playback/current')
+        API.playbackCurrent()
             .then(response => {
                 this.trackUrl = response.data.downloadUrl;
                 this.trackName = response.data.name;
@@ -92,8 +104,9 @@ const app = new Vue({
                 this.loadingTrack = false;
             })
 
+        // load playlist if enabled
         if (this.showPlaylist) {
-            axios.get('/api/tracks')
+            API.tracks()
                 .then(response => {
                     this.tracksTotal = response.data.total;
                     this.tracks = this.playlist = response.data.tracks;
@@ -104,38 +117,47 @@ const app = new Vue({
                 });
         }
 
-        window.onstorage = event => {
+        // subscribe for changes in storage
+        signals.listen(event => {
             switch (event.key) {
-                case 'jwp_showTitle':
-                    this.showTitle = JSON.parse(event.newValue);
-                    break;
-                case 'jwp_showPlaylist':
-                    this.showPlaylist = JSON.parse(event.newValue);
-                    break;
-                case 'jwp_showSettings':
-                    this.showSettings = JSON.parse(event.newValue);
-                    break;
-                case 'jwp_repeat':
-                    this.isRepeat = JSON.parse(event.newValue);
-                    break;
-                case 'jwp_muteInterval':
-                    this.muteInterval = JSON.parse(event.newValue);
-                    break;
-                case 'jwp_ctrl_trackId':
+                case Signals.CTRL_TRACKID:
                     this.play(event.newValue);
                     break;
                 case 'jwp_ctrl_tunnel':
                     this.handleCtrl(JSON.parse(event.newValue));
                     break;
             }
-        };
+        });
+
+        // subscribe for settings in storage
+        settings.listen(event => {
+            const value = JSON.parse(event.newValue);
+
+            switch (event.key) {
+                case Settings.SHOW_TITLE:
+                    this.showTitle = value;
+                    break;
+                case Settings.SHOW_PLAYLIST:
+                    this.showPlaylist = value;
+                    break;
+                case Settings.SHOW_SETTINGS:
+                    this.showSettings = value;
+                    break;
+                case Settings.REPEAT:
+                    this.isRepeat = value;
+                    break;
+                case Settings.MUTE_INTERVAL:
+                    this.muteInterval = value;
+                    break;
+            }
+        })
     },
     watch: {
-        showPlaylist: function (newValue, oldValue) {
+        showPlaylist: function (newValue) {
+            settings.setShowPlaylist(newValue);
             // load playlist by toggle setting
             if (newValue) {
-                localStorage.setItem('jwp_showPlaylist', JSON.stringify(newValue));
-                axios.get('/api/tracks')
+                API.tracks()
                     .then(response => {
                         this.tracksTotal = response.data.total;
                         this.tracks = this.playlist = response.data.tracks;
@@ -147,16 +169,16 @@ const app = new Vue({
             }
         },
         showTitle: function (newValue) {
-            localStorage.setItem('jwp_showTitle', JSON.stringify(newValue));
+            settings.setShowTitle(newValue);
         },
         showSettings: function (newValue) {
-            localStorage.setItem('jwp_showSettings', JSON.stringify(newValue));
+            settings.setShowSettings(newValue);
         },
         isRepeat: function (newValue) {
-            localStorage.setItem('jwp_repeat', JSON.stringify(newValue));
+            settings.setRepeat(newValue);
         },
         muteInterval: function (newValue) {
-            localStorage.setItem('jwp_muteInterval', JSON.stringify(newValue));
+            settings.setMuteInterval(newValue);
         },
         search: function (newValue) {
             // filtering playlist by text (name)
@@ -183,7 +205,7 @@ const app = new Vue({
     methods: {
         next() {
             // get link to next track
-            axios.get('/api/playback/next')
+            API.playbackNext()
                 .then(response => {
                     this.trackUrl = response.data.downloadUrl;
                     this.trackName = response.data.name;
@@ -217,7 +239,7 @@ const app = new Vue({
         },
         play(id) {
             // get selected track and play
-            axios.get('/api/playback/' + id)
+            API.playbackId(id)
                 .then(response => {
                     this.trackUrl = response.data.downloadUrl;
                     this.trackName = response.data.name;
@@ -263,14 +285,54 @@ const app = new Vue({
 
         },
         handleCtrl(data) {
-            console.log(data);
+            console.debug(data);
 
             switch (data.action) {
-                case 'next':
+                case CtrlEvent.NEXT:
                     this.next();
-                    localStorage.setItem('jwp_ctrl_tunnel', null);
+                    signals.reset();
+                    break;
+                case CtrlEvent.PLAYPAUSE:
+                    let promise = playpause();
+
+                    if (promise !== undefined) {
+                        promise
+                            .then(_ => {
+                                console.log('Start playing remotely.');
+                            })
+                            .catch(() => {
+                                console.log('Can\'t start playing remotely.');
+                            });
+                    }
+
+                    signals.reset();
+                    break;
+                case CtrlEvent.VOLUMECHANGE:
+                    volumeChange(data.value);
+                    break;
+                case CtrlEvent.MUTE:
+                    this.fade();
+                    signals.reset();
+                    break;
+                case CtrlEvent.DND:
+                    this.dnd();
+                    signals.reset();
+                    break;
+                case CtrlEvent.SYNCALL:
+                    let player = document.getElementById('player');
+                    signals.pushDataSyncAll({
+                        volume: player.volume,
+                        playpause: player.paused ? 'pause' : 'play',
+                        mute: !!this.mute_prev,
+                    });
                     break;
             }
+        },
+        syncPlayState(e) {
+            signals.pushPlayState(e.type);
+        },
+        syncVolume(e) {
+            signals.pushVolumeState(e.target.volume);
         },
     }
 });

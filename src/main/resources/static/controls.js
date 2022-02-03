@@ -1,10 +1,11 @@
+const signals = new Signals();
+const settings = new Settings();
 const app = new Vue({
     el: '#app',
     data: {
         loading: true,
         showTitle: true,
         showPlaylist: false,
-        showSettings: false,
         isRepeat: true,
         muteInterval: 300,
         trackId: null,
@@ -15,48 +16,61 @@ const app = new Vue({
         search: null,
         // playlist filtered by search (if set)
         tracks: [],
+        dnd: false,
+        mute: false,
+        playState: undefined,
+        volume: 1,
     },
     created() {
         // load current state
-        this.showTitle = JSON.parse(localStorage.getItem('jwp_showTitle') || 'true');
-        this.showPlaylist = JSON.parse(localStorage.getItem('jwp_showPlaylist') || 'false');
-        this.showSettings = JSON.parse(localStorage.getItem('jwp_showSettings') || 'false');
-        this.isRepeat = JSON.parse(localStorage.getItem('jwp_repeat') || 'true');
-        this.muteInterval = JSON.parse(localStorage.getItem('jwp_muteInterval') || '300');
-        this.trackId = localStorage.getItem('jwp_ctrl_trackId') || null;
+        this.showTitle = settings.getShowTitle();
+        this.showPlaylist = settings.getShowPlaylist();
+        this.isRepeat = settings.getRepeat();
+        this.muteInterval = settings.getMuteInterval();
+        this.trackId = signals.getTrackId();
 
-        axios.get('/api/tracks')
+        // sync not stored state of player
+        signals.pushRequestSyncAll();
+
+        // load tracks list
+        API.tracks()
             .then(response => {
                 this.tracksTotal = response.data.total;
                 this.tracks = this.playlist = response.data.tracks;
             })
             .catch(console.error);
 
-        window.onstorage = event => {
+        // subscribe for events in storage
+        signals.listen(event => {
             switch (event.key) {
-                case 'jwp_showTitle':
-                    this.showTitle = JSON.parse(event.newValue);
-                    break;
-                case 'jwp_showPlaylist':
-                    this.showPlaylist = JSON.parse(event.newValue);
-                    break;
-                case 'jwp_showSettings':
-                    this.showSettings = JSON.parse(event.newValue);
-                    break;
-                case 'jwp_repeat':
-                    this.isRepeat = JSON.parse(event.newValue);
-                    break;
-                case 'jwp_muteInterval':
-                    this.muteInterval = JSON.parse(event.newValue);
-                    break;
-                case 'jwp_ctrl_trackId':
+                case Signals.CTRL_TRACKID:
                     this.trackId = event.newValue;
                     break;
-                case 'jwp_ctrl_tunnel':
+                case Signals.CTRL_TUNNEL:
                     this.handleCtrl(JSON.parse(event.newValue));
                     break;
             }
-        };
+        });
+
+        // subscribe for settings in storage
+        settings.listen(event => {
+            let value = JSON.parse(event.newValue);
+
+            switch (event.key) {
+                case Settings.SHOW_TITLE:
+                    this.showTitle = value;
+                    break;
+                case Settings.SHOW_PLAYLIST:
+                    this.showPlaylist = value;
+                    break;
+                case Settings.REPEAT:
+                    this.isRepeat = value;
+                    break;
+                case Settings.MUTE_INTERVAL:
+                    this.muteInterval = value;
+                    break;
+            }
+        });
 
         this.loading = false;
     },
@@ -75,7 +89,25 @@ const app = new Vue({
             });
         },
         trackId: function (newValue) {
-            localStorage.setItem('jwp_ctrl_trackId', newValue);
+            signals.pushTrackId(newValue);
+        },
+        mute: function (newValue) {
+            signals.pushMute(newValue);
+        },
+        showTitle: function (newValue) {
+            settings.setShowTitle(newValue);
+        },
+        showPlaylist: function (newValue) {
+            settings.setShowPlaylist(newValue);
+        },
+        isRepeat: function (newValue) {
+            settings.setRepeat(newValue);
+        },
+        muteInterval: function (newValue) {
+            settings.setMuteInterval(newValue);
+        },
+        volume: function (newValue) {
+            signals.pushVolumeChange(newValue);
         },
     },
     methods: {
@@ -83,10 +115,32 @@ const app = new Vue({
             this.trackId = id;
         },
         handleCtrl(data) {
-            console.log(data);
+            switch (data.action) {
+                case CtrlEvent.PLAYSTATE:
+                    this.playState = data.value;
+                    break;
+                case CtrlEvent.VOLUMESTATE:
+                    this.volume = data.value;
+                    break;
+                case CtrlEvent.DATASYNCALL:
+                    this.volume = data.value.volume;
+                    this.mute = data.value.mute;
+                    this.playState = data.value.playpause;
+                    break;
+            }
         },
         next() {
-            localStorage.setItem('jwp_ctrl_tunnel', JSON.stringify({'action': 'next'}));
+            signals.pushNext();
+        },
+        playpause() {
+            signals.pushPlayPause();
+        },
+        dnd() {
+            this.showTitle = false;
+            this.showPlaylist = false;
+        },
+        toggleMute() {
+            this.mute = !this.mute;
         },
     },
 });

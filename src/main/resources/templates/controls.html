@@ -9,6 +9,20 @@
         body {
             font-family: monospace;
         }
+
+        .frame {
+            display: flex;
+            flex-direction: column;
+            height: 89vh;
+            margin: 0 10px;
+        }
+
+        .scroll {
+            flex: 0 1 100%;
+            border: none;
+            overflow-y: auto;
+            overflow-style: marquee-line;
+        }
     </style>
 </head>
 <body>
@@ -41,35 +55,50 @@
                 <label for="muteInterval">Скорость выключения звука</label>
                 <span class="helper-text">мс</span>
             </div>
-            <p>Показать настройки: {{ showSettings }}</p>
             <p>Всего треков: {{ tracksTotal }}</p>
             <div>
-                <button @click.prevent="next">next</button>
+                <p>Громкость ({{ volume.toFixed(4) }})</p>
+                <input type="range" v-model="volume" min="0.0001" max="1" step="0.001"/>
             </div>
-            <p>mute</p>
-            <p>dnd</p>
+            <div>
+                <button @click.prevent="showTitle = false;showPlaylist = false" class="btn-flat waves-effect waves-teal btn-large">
+                    <i class="material-icons">do_not_disturb_on</i>
+                </button>
+                <button @click.prevent="toggleMute" class="btn-flat btn-large waves-effect waves-teal">
+                    <i class="material-icons">{{ mute ? 'volume_up' : 'volume_off' }}</i>
+                </button>
+                <button @click.prevent="next" class="btn-flat waves-effect waves-teal btn-large">
+                    <i class="material-icons">skip_next</i>
+                </button>
+                <button @click.prevent="playpause" class="waves-effect waves-teal btn-large" :class="{'btn-flat': playState !== 'play', 'btn': playState === 'play'}" :disabled="playState === undefined">
+                    <i class="material-icons">play_arrow</i>
+                </button>
+            </div>
         </div>
         <div class="col s9">
             <div class="input-field">
                 <input type="text" placeholder="поиск" v-model="search" id="search"/>
                 <label for="search"></label>
             </div>
-            <ul v-if="tracks.length">
-                <li v-for="track in tracks">
-                    <a href="#" @click.prevent="play(track.id)" :title="track.name">
-                        <template v-if="track.id === trackId">
-                            <i class="material-icons tiny">play_arrow</i>&nbsp;
-                        </template>
-                        {{ track.name }}
-                    </a>
-                </li>
-            </ul>
+            <div class="frame">
+                <ul v-if="tracks.length" class="scroll">
+                    <li v-for="track in tracks">
+                        <a href="#" @click.prevent="play(track.id)" :title="track.name">
+                            <template v-if="track.id === trackId">
+                                <i class="material-icons tiny">play_arrow</i>&nbsp;
+                            </template>
+                            {{ track.name }}
+                        </a>
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
 </div>
 <script src="/axios/axios.min.js"></script>
 <script src="/vue/vue.js"></script>
 <script src="/materialize/js/materialize.min.js"></script>
+<script type="text/javascript" src="/utils.js"></script>
 <script type="text/javascript" src="/controls.js"></script>
 </body>
 </html>
