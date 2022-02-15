@@ -78,7 +78,7 @@ public class AudioService
         Track track = trackRepository.findById(hash).orElse(null);
 
         if (track == null) {
-            throw new RuntimeException("Track is not found.");
+            throw new RuntimeException("Track " + hash + " not found.");
         }
 
         File file = fileByPath(track.getPath());
