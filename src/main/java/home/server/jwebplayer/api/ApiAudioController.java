@@ -1,6 +1,7 @@
 package home.server.jwebplayer.api;
 
 import home.server.jwebplayer.dto.ApiTrackDto;
+import home.server.jwebplayer.dto.PlaylistDto;
 import home.server.jwebplayer.entity.Track;
 import home.server.jwebplayer.service.AudioService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -24,14 +24,14 @@ public class ApiAudioController
     }
 
     @GetMapping("/api/tracks")
-    public ResponseEntity<Playlist> playlist()
+    public ResponseEntity<PlaylistDto> playlist()
     {
         List<ApiTrackDto> tracks = audioService.getAllTracks()
                 .stream()
-                .map(track -> new ApiTrackDto(track, "/download/" + track.getId()))
+                .map(this::transformTrackToDto)
                 .toList();
 
-        return ResponseEntity.ok(new Playlist(tracks));
+        return ResponseEntity.ok(new PlaylistDto(tracks));
     }
 
     @GetMapping("/api/playback/current")
@@ -43,7 +43,7 @@ public class ApiAudioController
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(new ApiTrackDto(track, "/download/" + track.getId()));
+        return ResponseEntity.ok(transformTrackToDto(track));
     }
 
     @GetMapping("/api/playback/next")
@@ -55,7 +55,7 @@ public class ApiAudioController
     }
 
     @GetMapping("/api/playback/{hash}")
-    public ResponseEntity<ApiTrackDto> play(@PathVariable String hash)
+    public ResponseEntity<ApiTrackDto> play(@PathVariable String hash) throws Exception
     {
         Track track = audioService.getCurrentByHash(hash);
 
@@ -63,6 +63,11 @@ public class ApiAudioController
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(new ApiTrackDto(track, "/download/" + track.getId()));
+        return ResponseEntity.ok(transformTrackToDto(track));
+    }
+
+    private ApiTrackDto transformTrackToDto(Track track)
+    {
+        return new ApiTrackDto(track, "/download/" + track.getId());
     }
 }

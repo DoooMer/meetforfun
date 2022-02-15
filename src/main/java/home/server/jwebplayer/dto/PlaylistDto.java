@@ -1,11 +1,10 @@
-package home.server.jwebplayer.api;
+package home.server.jwebplayer.dto;
 
-import home.server.jwebplayer.dto.ApiTrackDto;
 import lombok.Getter;
 
 import java.util.List;
 
-public class Playlist
+public class PlaylistDto
 {
     @Getter
     private final List<ApiTrackDto> tracks;
@@ -13,7 +12,7 @@ public class Playlist
     @Getter
     private final int total;
 
-    public Playlist(List<ApiTrackDto> tracks)
+    public PlaylistDto(List<ApiTrackDto> tracks)
     {
         this.tracks = tracks;
         total = tracks.size();

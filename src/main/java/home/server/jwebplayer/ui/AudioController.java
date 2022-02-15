@@ -30,12 +30,6 @@ public class AudioController
     @GetMapping("/")
     public String main(Model model) throws UnsupportedEncodingException
     {
-        if (audioService.isNeedToScan()) {
-            // todo: background task on run app
-            // todo: show another page for a waiting
-            audioService.scan();
-        }
-
         model.addAttribute("tracks", audioService.getAllTracks());
         model.addAttribute("total", audioService.getAllTracks().size());
 

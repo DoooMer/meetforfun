@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Web audio player</title>
+    <title>Web audio player - remote control</title>
     <link rel="stylesheet" href="/materialize/css/materialize.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
@@ -83,7 +83,7 @@
             <div class="frame">
                 <ul v-if="tracks.length" class="scroll">
                     <li v-for="track in tracks">
-                        <a href="#" @click.prevent="play(track.id)" :title="track.name">
+                        <a href="#" @click.prevent="play(track.id)" :title="track.name + ' | ' + track.id">
                             <template v-if="track.id === trackId">
                                 <i class="material-icons tiny">play_arrow</i>&nbsp;
                             </template>

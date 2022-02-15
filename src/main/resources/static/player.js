@@ -330,6 +330,14 @@ const app = new Vue({
         },
         syncPlayState(e) {
             signals.pushPlayState(e.type);
+            switch (e.type) {
+                case 'play':
+                    document.title = this.trackName + ' | ' + document.title;
+                    break;
+                case 'pause':
+                    document.title = document.title.substring(this.trackName.length + 2);
+                    break;
+            }
         },
         syncVolume(e) {
             signals.pushVolumeState(e.target.volume);

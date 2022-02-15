@@ -1,27 +1,42 @@
 package home.server.jwebplayer.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.GeneratorType;
 
+import javax.persistence.*;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
+@Entity
+@Table(name = "tracks")
+@AllArgsConstructor
+@NoArgsConstructor
 public class Track
 {
+    @Id
     @Getter
-    private final String id; // hash
+    @Setter
+    private String id; // hash
 
+    @Column(unique = true)
     @Getter
-    private final String path; // relative path
+    @Setter
+    private String path; // relative path
 
+    @Column
     @Getter
-    private final String name; // track name
+    @Setter
+    private String name; // track name
 
-    public Track(String hash, String path) throws UnsupportedEncodingException
+    public Track(String hash, String path) //throws UnsupportedEncodingException
     {
         id = hash;
         name = path.substring(0, path.length() - 4);
-        this.path = URLEncoder.encode(name, StandardCharsets.UTF_8.toString());
+        this.path = path;//URLEncoder.encode(name, StandardCharsets.UTF_8.toString());
     }
 
     @Override
