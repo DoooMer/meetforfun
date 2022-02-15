@@ -14,9 +14,9 @@
 
 [x] scrollable playlist
 
-[*] background indexing folder, page for waiting
+[x] background indexing folder, page for waiting
 
-[*] watch for changes, re-indexing in background (add new files + drop if not found)
+[x] watch for changes, re-indexing in background (add new files + drop if not found)
 
 [_] catch FileNotFoundException in download (on back - drop file from index, on front - skip and try to play next)
 
