@@ -47,6 +47,7 @@ function volumeChange(volume) {
     player.volume = volume;
 }
 
+const WINDOW_TITLE = document.title;
 const signals = new Signals();
 const settings = new Settings();
 const app = new Vue({
@@ -195,6 +196,7 @@ const app = new Vue({
         },
         trackId: function (newValue) {
             localStorage.setItem('jwp_ctrl_trackId', newValue);
+            document.title = this.trackName + ' | ' + WINDOW_TITLE;
         },
     },
     computed: {
@@ -332,10 +334,10 @@ const app = new Vue({
             signals.pushPlayState(e.type);
             switch (e.type) {
                 case 'play':
-                    document.title = this.trackName + ' | ' + document.title;
+                    document.title = this.trackName + ' | ' + WINDOW_TITLE;
                     break;
                 case 'pause':
-                    document.title = document.title.substring(this.trackName.length + 2);
+                    document.title = WINDOW_TITLE;
                     break;
             }
         },
