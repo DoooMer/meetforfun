@@ -18,6 +18,8 @@
 
 [x] watch for changes, re-indexing in background (add new files + drop if not found)
 
+[_] JS dependencies by npm (add npm install before build jar)
+
 [_] catch FileNotFoundException in download (on back - drop file from index, on front - skip and try to play next)
 
 [_] user session (separate cursors)
@@ -35,3 +37,5 @@
 [_] remember volume level
 
 [_] setting minimal/preferred volume (save to localstorage, toggle by button on/off) - fast change volume
+
+[_] random meme
