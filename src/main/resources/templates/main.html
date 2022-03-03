@@ -40,16 +40,18 @@
             <h5 v-else>&nbsp;</h5>
         </div>
         <div class="col s8">
-            <audio autoplay controls :src="trackUrl" @ended="isRepeat ? next() : () => {}" @play="syncPlayState" @pause="syncPlayState" @volumechange="syncVolume" id="player"></audio>
+            <audio autoplay controls :src="trackUrl" @ended="isRepeat ? next() : () => {}" @play="syncPlayState"
+                   @pause="syncPlayState" @volumechange="syncVolume" id="player"></audio>
         </div>
         <div class="col s4" style="padding: 11px 0;">
-<!--            <button @click.prevent="prev" class="btn-flat waves-effect waves-teal" title="Предыдущий трек">-->
-<!--                <i class="material-icons">skip_prev</i>-->
-<!--            </button>-->
+            <!--            <button @click.prevent="prev" class="btn-flat waves-effect waves-teal" title="Предыдущий трек">-->
+            <!--                <i class="material-icons">skip_prev</i>-->
+            <!--            </button>-->
             <button @click.prevent="next" class="btn-flat waves-effect waves-teal" title="Следующий трек">
                 <i class="material-icons">skip_next</i>
             </button>
-            <button @click.prevent="isRepeat = !isRepeat" :class="{'teal white-text': isRepeat}" class="btn-flat" title="Режим повтора">
+            <button @click.prevent="isRepeat = !isRepeat" :class="{'teal white-text': isRepeat}" class="btn-flat"
+                    title="Режим повтора">
                 <i class="material-icons">repeat</i>
             </button>
             <button @click.prevent="fade" :disabled="isFade" class="btn-flat" title="Плавное отключение звука">
@@ -58,13 +60,25 @@
             <button @click.prevent="dnd" class="btn-flat" title="Не беспокоить">
                 <i class="material-icons">{{ !showTitle && !showPlaylist ? 'do_not_disturb_off' : 'do_not_disturb_on' }}</i>
             </button>
-            <button @click.prevent="showSettings = !showSettings" :class="{'teal white-text': showSettings}" class="btn-flat" title="Настройки">
+            <button @click.prevent="showSettings = !showSettings" :class="{'teal white-text': showSettings}"
+                    class="btn-flat" title="Настройки">
                 <i class="material-icons">settings</i>
+            </button>
+            <button @click.prevent="" class="btn-flat" disabled title="Вход">
+                <i class="material-icons">face</i>
+            </button>
+            <button @click.prevent="meme" class="btn-flat" title="Вкл мемы">
+                <i class="material-icons">attachment</i>
             </button>
         </div>
     </div>
     <div class="row" v-show="!loading" style="display: none;">
         <div class="col s9">
+            <template v-if="showMeme">
+                <div class="center-align">
+                    <img class="responsive-img z-depth-4" :src="memeUrl">
+                </div>
+            </template>
             <template v-if="showPlaylist">
                 <p>Всего: {{ tracksTotal }}</p>
                 <div class="input-field">

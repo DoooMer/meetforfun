@@ -80,6 +80,7 @@ class Settings {
     static SHOW_TITLE = 'jwp_showTitle';
     static SHOW_PLAYLIST = 'jwp_showPlaylist';
     static SHOW_SETTINGS = 'jwp_showSettings';
+    static SHOW_MEME = 'jwp+showMeme';
     static REPEAT = 'jwp_repeat';
     static MUTE_INTERVAL = 'jwp_muteInterval';
 
@@ -105,6 +106,14 @@ class Settings {
 
     setShowSettings(value) {
         localStorage.setItem(Settings.SHOW_SETTINGS, JSON.stringify(value));
+    }
+
+    getShowMeme() {
+        return JSON.parse(localStorage.getItem(Settings.SHOW_MEME) || 'false');
+    }
+
+    setShowMeme(value) {
+        localStorage.setItem(Settings.SHOW_MEME, JSON.stringify(value));
     }
 
     getRepeat() {
@@ -138,6 +147,7 @@ class Settings {
             Settings.SHOW_TITLE,
             Settings.SHOW_PLAYLIST,
             Settings.SHOW_SETTINGS,
+            Settings.SHOW_MEME,
             Settings.REPEAT,
             Settings.MUTE_INTERVAL,
         ];
@@ -164,6 +174,14 @@ class API {
 
 }
 
+class MemeAPI {
+
+    static random() {
+        return axios.get('https://meme-api.herokuapp.com/gimme');
+    }
+
+}
+
 class CtrlEvent {
 
     static NEXT = 'next';
@@ -175,5 +193,27 @@ class CtrlEvent {
     static PLAYSTATE = 'playState';
     static VOLUMESTATE = 'volumeState';
     static DATASYNCALL = 'dataSyncAll';
+
+}
+
+class MemesProvider {
+
+    timer;
+
+    run(callback, timeout = 5000) {
+        this.timer = setInterval(function () {
+            MemeAPI.random()
+                .then(response => {
+                    callback(response.data);
+                })
+                .catch(console.error);
+        }, timeout);
+    }
+
+    stop() {
+        if (this.timer) {
+            clearInterval(this.timer);
+        }
+    }
 
 }

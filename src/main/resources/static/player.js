@@ -50,6 +50,7 @@ function volumeChange(volume) {
 const WINDOW_TITLE = document.title;
 const signals = new Signals();
 const settings = new Settings();
+const memesProvider = new MemesProvider();
 const app = new Vue({
     el: '#app',
     // store,
@@ -63,6 +64,9 @@ const app = new Vue({
         showTitle: true,
         // display all tracks under player
         showPlaylist: true,
+        // display random meme if not enabled playlist
+        showMeme: false,
+        memeUrl: null,
         // timer duration for each fade step
         muteInterval: 300,
         // saved previous volume state
@@ -90,6 +94,7 @@ const app = new Vue({
         this.showTitle = settings.getShowTitle();
         this.showPlaylist = settings.getShowPlaylist();
         this.showSettings = settings.getShowSettings();
+        this.showMeme = settings.getShowMeme();
         this.isRepeat = settings.getRepeat();
         this.muteInterval = settings.getMuteInterval();
 
@@ -144,6 +149,9 @@ const app = new Vue({
                 case Settings.SHOW_SETTINGS:
                     this.showSettings = value;
                     break;
+                case Settings.SHOW_MEME:
+                    this.showMeme = value;
+                    break;
                 case Settings.REPEAT:
                     this.isRepeat = value;
                     break;
@@ -158,6 +166,7 @@ const app = new Vue({
             settings.setShowPlaylist(newValue);
             // load playlist by toggle setting
             if (newValue) {
+                this.showMeme = false;
                 API.tracks()
                     .then(response => {
                         this.tracksTotal = response.data.total;
@@ -166,7 +175,7 @@ const app = new Vue({
                     .catch(console.error)
                     .finally(() => {
                         this.loadingPlaylist = false;
-                    })
+                    });
             }
         },
         showTitle: function (newValue) {
@@ -174,6 +183,42 @@ const app = new Vue({
         },
         showSettings: function (newValue) {
             settings.setShowSettings(newValue);
+        },
+        showMeme: function (newValue) {
+            settings.setShowMeme(newValue);
+
+            if (newValue) {
+                console.log('memes on, lets fun after 15 sec...');
+                memesProvider.run((meme) => {
+                    console.log('handle new meme');
+                    let previewUrl = null;
+                    let size = 0;
+                    let reg = /width=(\d*)&/i;
+
+                    for (let preview of meme.preview) {
+                        let match = reg.exec(preview);
+                        let currentSize = parseInt(match[1]);
+
+                        if (size < currentSize) {
+                            size = currentSize;
+                        }
+
+                        previewUrl = preview;
+
+                        if (size >= 640) {
+                            break;
+                        }
+
+                    }
+
+                    this.memeUrl = previewUrl;
+
+                }, 15_000);
+            } else {
+                console.log('... memes off');
+                memesProvider.stop();
+                this.memeUrl = null;
+            }
         },
         isRepeat: function (newValue) {
             settings.setRepeat(newValue);
@@ -285,6 +330,11 @@ const app = new Vue({
                 this.showPlaylist = true;
             }
 
+        },
+        meme() {
+            if (!this.showPlaylist) {
+                this.showMeme = !this.showMeme;
+            }
         },
         handleCtrl(data) {
             console.debug(data);

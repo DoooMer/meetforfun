@@ -6,6 +6,7 @@ const app = new Vue({
         loading: true,
         showTitle: true,
         showPlaylist: false,
+        showMeme: false,
         isRepeat: true,
         muteInterval: 300,
         trackId: null,
@@ -25,6 +26,7 @@ const app = new Vue({
         // load current state
         this.showTitle = settings.getShowTitle();
         this.showPlaylist = settings.getShowPlaylist();
+        this.showMeme = settings.getShowMeme();
         this.isRepeat = settings.getRepeat();
         this.muteInterval = settings.getMuteInterval();
         this.trackId = signals.getTrackId();
@@ -63,6 +65,9 @@ const app = new Vue({
                 case Settings.SHOW_PLAYLIST:
                     this.showPlaylist = value;
                     break;
+                case Settings.SHOW_MEME:
+                    this.showMeme = value;
+                    break;
                 case Settings.REPEAT:
                     this.isRepeat = value;
                     break;
@@ -99,6 +104,10 @@ const app = new Vue({
         },
         showPlaylist: function (newValue) {
             settings.setShowPlaylist(newValue);
+            this.showMeme = newValue ? false : this.showMeme;
+        },
+        showMeme: function (newValue) {
+            settings.setShowMeme(newValue);
         },
         isRepeat: function (newValue) {
             settings.setRepeat(newValue);
@@ -138,6 +147,11 @@ const app = new Vue({
         dnd() {
             this.showTitle = false;
             this.showPlaylist = false;
+        },
+        meme() {
+            if (!this.showPlaylist) {
+                this.showMeme = !this.showMeme;
+            }
         },
         toggleMute() {
             this.mute = !this.mute;
