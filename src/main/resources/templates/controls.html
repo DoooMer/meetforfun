@@ -73,6 +73,9 @@
                 <button @click.prevent="playpause" class="waves-effect waves-teal btn-large" :class="{'btn-flat': playState !== 'play', 'btn': playState === 'play'}" :disabled="playState === undefined">
                     <i class="material-icons">play_arrow</i>
                 </button>
+                <button @click.prevent="meme" class="btn-flat waves-effect waves-teal btn-large" title="Вкл мемы">
+                    <i class="material-icons">attachment</i>
+                </button>
             </div>
         </div>
         <div class="col s9">

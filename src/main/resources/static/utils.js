@@ -201,6 +201,11 @@ class MemesProvider {
     timer;
 
     run(callback, timeout = 5000) {
+        MemeAPI.random()
+            .then(response => {
+                callback(response.data);
+            })
+            .catch(console.error);
         this.timer = setInterval(function () {
             MemeAPI.random()
                 .then(response => {
