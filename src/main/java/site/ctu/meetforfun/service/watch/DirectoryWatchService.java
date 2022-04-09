@@ -1,4 +1,4 @@
-package home.server.jwebplayer.service.watch;
+package site.ctu.meetforfun.service.watch;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

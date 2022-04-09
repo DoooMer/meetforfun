@@ -1,4 +1,4 @@
-package home.server.jwebplayer.dto;
+package site.ctu.meetforfun.dto;
 
 import lombok.Getter;
 

@@ -1,9 +1,9 @@
-package home.server.jwebplayer.api;
+package site.ctu.meetforfun.api;
 
-import home.server.jwebplayer.dto.ApiTrackDto;
-import home.server.jwebplayer.dto.PlaylistDto;
-import home.server.jwebplayer.entity.Track;
-import home.server.jwebplayer.service.AudioService;
+import site.ctu.meetforfun.dto.ApiTrackDto;
+import site.ctu.meetforfun.dto.PlaylistDto;
+import site.ctu.meetforfun.entity.Track;
+import site.ctu.meetforfun.service.AudioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;

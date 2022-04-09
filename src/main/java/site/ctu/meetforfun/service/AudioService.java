@@ -1,9 +1,9 @@
-package home.server.jwebplayer.service;
+package site.ctu.meetforfun.service;
 
-import home.server.jwebplayer.dto.DownloadedTrackDto;
-import home.server.jwebplayer.entity.Track;
-import home.server.jwebplayer.repository.TrackRepository;
-import home.server.jwebplayer.service.playlist.PlaylistService;
+import site.ctu.meetforfun.dto.DownloadedTrackDto;
+import site.ctu.meetforfun.entity.Track;
+import site.ctu.meetforfun.repository.TrackRepository;
+import site.ctu.meetforfun.service.playlist.PlaylistService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

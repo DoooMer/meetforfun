@@ -1,7 +1,7 @@
-package home.server.jwebplayer;
+package site.ctu.meetforfun;
 
-import home.server.jwebplayer.service.watch.DirectoryWatcher;
-import home.server.jwebplayer.service.watch.TrackListener;
+import site.ctu.meetforfun.service.watch.DirectoryWatcher;
+import site.ctu.meetforfun.service.watch.TrackListener;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

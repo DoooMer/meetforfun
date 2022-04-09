@@ -1,4 +1,4 @@
-package home.server.jwebplayer.service.watch;
+package site.ctu.meetforfun.service.watch;
 
 import lombok.extern.slf4j.Slf4j;
 

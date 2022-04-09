@@ -1,6 +1,6 @@
-package home.server.jwebplayer.dto;
+package site.ctu.meetforfun.dto;
 
-import home.server.jwebplayer.entity.Track;
+import site.ctu.meetforfun.entity.Track;
 import lombok.Getter;
 
 public class ApiTrackDto

@@ -1,6 +1,6 @@
-package home.server.jwebplayer.service.playlist;
+package site.ctu.meetforfun.service.playlist;
 
-import home.server.jwebplayer.entity.Track;
+import site.ctu.meetforfun.entity.Track;
 import org.springframework.stereotype.Component;
 
 import java.util.LinkedList;

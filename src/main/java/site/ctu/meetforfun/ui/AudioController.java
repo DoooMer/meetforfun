@@ -1,7 +1,7 @@
-package home.server.jwebplayer.ui;
+package site.ctu.meetforfun.ui;
 
-import home.server.jwebplayer.entity.Track;
-import home.server.jwebplayer.service.AudioService;
+import site.ctu.meetforfun.entity.Track;
+import site.ctu.meetforfun.service.AudioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;

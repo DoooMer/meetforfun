@@ -1,6 +1,6 @@
-package home.server.jwebplayer.repository;
+package site.ctu.meetforfun.repository;
 
-import home.server.jwebplayer.entity.Track;
+import site.ctu.meetforfun.entity.Track;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
